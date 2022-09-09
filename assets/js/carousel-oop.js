@@ -1,11 +1,31 @@
-function Carousel(containerID = '#carousel', slideID = '.slide') {
-    this.container = document.querySelector(containerID);
-    this.slides = this.container.querySelectorAll(slideID);
-    //this.indicatorsContainer = this.container.querySelector('#indicators-container');   
-    
-}
+class Carousel {
+    constructor(params) {
+        //const settings = this._initConfig(params);
+        this.container = document.querySelector(params.containerID);
+        this.slides = this.container.querySelectorAll(params.slideID);
+        this.interval = params.interval;
+        this.isPlaying = params.isPlaying;
+        this.direction = params.direction;
+    }
+    /*_initConfig(objectParams) {
+        const defaultSettings = {
+            containerID:'#carousel',
+            slideID:'.slide',
+            interval: 1500, 
+            isPlaying: true,
+            direction: 'forward'
+        };
 
-Carousel.prototype = {
+        if (typeof objectParams !== 'undefined') {
+            defaultSettings.containerID = objectParams.containerID || defaultSettings.containerID;
+            defaultSettings.slideID = objectParams.slideID || defaultSettings.slideID;
+            defaultSettings.interval = objectParams.interval || defaultSettings.interval;
+            defaultSettings.isPlaying = objectParams.isPlaying || defaultSettings.isPlaying;
+            defaultSettings.direction = objectParams.direction || defaultSettings.direction;
+        }
+    }*/
+
+
     _initProps() {
         this.SLIDES_COUNT = this.slides.length;
         this.FA_PAUSE = '<i class="fa fa-pause-circle"></i>';
@@ -15,12 +35,10 @@ Carousel.prototype = {
         this.CODE_SPACE = 'Space';
     
         this.currentSlide = 0;
-        this.isPlaying = true;
-        this.timerID = null;
-        this.interval = 2000;
+        
         this.swipeStartX = null;
         this.swipeStopX = null;
-    },
+    }
     _initIndicators() {   
     /**
      * <div id="indicators-container" class="indicators">
@@ -46,7 +64,7 @@ Carousel.prototype = {
        this.container.append(indicators);
        this.indicatorsContainer = this.container.querySelector('.indicators');
        this.indicators = this.indicatorsContainer.querySelectorAll('.indicator');
-    },
+    }
     _initControls() {
     /*<div id="controls-container" class="controls">
       <span id="pause-btn" class="control control-pause"><i class="fa fa-pause-circle"></i></span>
@@ -63,37 +81,37 @@ Carousel.prototype = {
         this.pauseBtn = this.container.querySelector('#pause-btn');
         this.prevBtn = this.container.querySelector('#prev-btn');
         this.nextButton = this.container.querySelector('#next-btn');
-    },
+    }
     _initListeners() {
         this.pauseBtn.addEventListener('click', this.pausePlay.bind(this));
         this.prevBtn.addEventListener('click', this.prev.bind(this));
         this.nextButton.addEventListener('click', this.next.bind(this));
         this.indicatorsContainer.addEventListener('click', this._indicate.bind(this));
         document.addEventListener('keydown', this._pressKey.bind(this)); 
-    },
+    }
      _goToNth(n) {
         this.slides[this.currentSlide].classList.toggle('active');
         this.indicators[this.currentSlide].classList.toggle('active');
         this.currentSlide = (n + this.SLIDES_COUNT) % this.SLIDES_COUNT;
         this.slides[this.currentSlide].classList.toggle('active');
         this.indicators[this.currentSlide].classList.toggle('active');
-    },    
+    }    
     _goToNext() {
         this._goToNth(this.currentSlide + 1);
-    },    
+    }    
     _goToPrev() {
         this._goToNth(this.currentSlide - 1);
-    },    
+    }    
     _pause() {
         this.isPlaying = false;
         this.pauseBtn.innerHTML = this.FA_PLAY;
         clearInterval(this.timerID);
-    },    
+    }    
     _play() {
         this.isPlaying = true;
         this.pauseBtn.innerHTML = this.FA_PAUSE;
         this._tick();
-    },
+    }
     _indicate(e) {
         const target = e.target;
         if (target.classList.contains('indicator')) {
@@ -101,32 +119,32 @@ Carousel.prototype = {
                 //console.log(target.getAttribute('data-slide-to'));
                 this._goToNth(+target.getAttribute('data-slide-to'));
         }
-    },        
+    }        
     _pressKey(e) {
         if (e.code === this.CODE_RIGHT_ARROW) this.next();
         if (e.code === this.CODE_LEFT_ARROW) this.prev();
         if (e.code === this.CODE_SPACE) this.pausePlay();
-    },    
+    }    
     _tick() {
         this.timerID = setInterval(this._goToNext.bind(this), this.interval);
-    },    
+    }   
     pausePlay() {        
         this.isPlaying ? this._pause() : this._play();
-    },        
+    }        
     next() {
         this._pause();
         this._goToNext();
-    },        
+    }       
     prev() {
         this._pause();
         this._goToPrev();
-    },
-    init: function() {
+    }
+    init() {
         this._initProps();
         this._initIndicators();
         this._initControls();
         this._initListeners();
         this._tick();
-    },
-};
-Carousel.prototype.construct = Carousel;
+    }
+}
+
