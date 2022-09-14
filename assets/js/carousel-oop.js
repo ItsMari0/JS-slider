@@ -1,13 +1,16 @@
 class Carousel {
     constructor(params) {
-        //const settings = this._initConfig(params);
-        this.container = document.querySelector(params.containerID);
-        this.slides = this.container.querySelectorAll(params.slideID);
-        this.interval = params.interval;
-        this.isPlaying = params.isPlaying;
-        this.direction = params.direction;
+        // #4 const settings = this._initConfig(params);
+        const settings = {...{containerID:'#carousel', slideID:'.slide', interval: 1500, isPlaying: true, direction: 'forward'}, ...params};
+        this.container = document.querySelector(settings.containerID);
+        this.slides = this.container.querySelectorAll(settings.slideID);
+        this.interval = settings.interval;
+        this.isPlaying = settings.isPlaying;
+        this.direction = settings.direction;
     }
-    /*_initConfig(objectParams) {
+
+    /*#1 
+    _initConfig(objectParams) {
         const defaultSettings = {
             containerID:'#carousel',
             slideID:'.slide',
@@ -23,13 +26,35 @@ class Carousel {
             defaultSettings.isPlaying = objectParams.isPlaying || defaultSettings.isPlaying;
             defaultSettings.direction = objectParams.direction || defaultSettings.direction;
         }
-    }*/
+        return defaultSettings;
 
+    }*/
+   
+    /*#2
+    _initConfig(objectParams) {
+        const defaultSettings = {
+            containerID:'#carousel',
+            slideID:'.slide',
+            interval: 1500, 
+            isPlaying: true,
+            direction: 'forward'
+        };
+        const result = {...defaultSettings, ...objectParams};
+        return result;
+    }*/
+    
+    /*#3
+    _initConfig(objectParams) {
+        return {...{containerID:'#carousel', slideID:'.slide', interval: 1500, isPlaying: true, direction: 'forward'}, ...objectParams};
+
+    }*/
 
     _initProps() {
         this.SLIDES_COUNT = this.slides.length;
         this.FA_PAUSE = '<i class="fa fa-pause-circle"></i>';
         this.FA_PLAY = '<i class="fa fa-play-circle"></i>';
+        this.FA_PREV = '<i class="fa fa-angle-left"></i>';
+        this.FA_NEXT = '<i class="fa fa-angle-right"></i>';
         this.CODE_LEFT_ARROW = 'ArrowLeft';
         this.CODE_RIGHT_ARROW = 'ArrowRight';
         this.CODE_SPACE = 'Space';
@@ -74,8 +99,8 @@ class Carousel {
         const controls = document.createElement('div');
         controls.setAttribute('class','controls');
         const PAUSE = '<span id="pause-btn" class="control control-pause"><i class="fa fa-pause-circle"></i></span>';
-        const PREV = '<span id="prev-btn" class="control control-prev"><i class="fa fa-angle-left"></i></span>';
-        const NEXT = '<span id="next-btn" class="control control-next"><i class="fa fa-angle-right"></i></span>';
+        const PREV = `<span id="prev-btn" class="control control-prev">${this.FA_PREV}</span>`;
+        const NEXT = `<span id="next-btn" class="control control-next">${this.FA_NEXT}</span>`;
         controls.innerHTML = PAUSE + PREV + NEXT;
         this.container.append(controls);
         this.pauseBtn = this.container.querySelector('#pause-btn');
@@ -88,6 +113,8 @@ class Carousel {
         this.nextButton.addEventListener('click', this.next.bind(this));
         this.indicatorsContainer.addEventListener('click', this._indicate.bind(this));
         document.addEventListener('keydown', this._pressKey.bind(this)); 
+        this.container.addEventListener('mouseenter', this._pause.bind(this));
+        this.container.addEventListener('mouseleave', this._play.bind(this));
     }
      _goToNth(n) {
         this.slides[this.currentSlide].classList.toggle('active');
@@ -103,14 +130,19 @@ class Carousel {
         this._goToNth(this.currentSlide - 1);
     }    
     _pause() {
-        this.isPlaying = false;
-        this.pauseBtn.innerHTML = this.FA_PLAY;
-        clearInterval(this.timerID);
+        if(this.isPlaying) {
+            this.isPlaying = false;
+            this.pauseBtn.innerHTML = this.FA_PLAY;
+            clearInterval(this.timerID);
+        }
     }    
     _play() {
-        this.isPlaying = true;
-        this.pauseBtn.innerHTML = this.FA_PAUSE;
-        this._tick();
+        if (!this.isPlaying) {
+            this.isPlaying = true;
+            this.pauseBtn.innerHTML = this.FA_PAUSE;
+            clearInterval(this.timerID);
+        }
+        
     }
     _indicate(e) {
         const target = e.target;
